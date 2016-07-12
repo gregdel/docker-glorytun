@@ -1,0 +1,21 @@
+version: '2'
+services:
+  mud:
+    build: .
+    container_name: mud
+    cap_add:
+    - NET_ADMIN
+    devices:
+    - /dev/net/tun
+    network_mode: "bridge"
+    ports:
+    - "5000:5000/udp"
+    tmpfs: /run
+    environment:
+    - GLORYTUN_KEY=YOUR_KEY
+    - GLORYTUN_DEV=tun0
+    - GLORYTUN_IP_LOCAL=10.0.0.1
+    - GLORYTUN_IP_PEER=10.0.0.2
+    - GLORYTUN_MTU=1450
+    - GLORYTUN_PORT=5000
+    - GLORYTUN_TXQLEN=1000
