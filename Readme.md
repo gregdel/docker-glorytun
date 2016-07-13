@@ -9,7 +9,7 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 ### Build
 
 ```
-docker build -t docker-glorytun:v0.0.55 .
+docker build -t docker-glorytun:v0.0.56 .
 ```
 
 ### Run
@@ -17,7 +17,7 @@ docker build -t docker-glorytun:v0.0.55 .
 #### From the cli
 
 ```
-docker run -d -e GLORYTUN_KEY=YOUR_KEY -p "5000:5000/udp" --cap-add=NET_ADMIN --device /dev/net/tun --name mud docker-glorytun:v0.0.55
+docker run -d -e GLORYTUN_KEY=YOUR_KEY -p "5000:5000/udp" --cap-add=NET_ADMIN --device /dev/net/tun --name mud docker-glorytun:v0.0.56
 ```
 
 #### With a docker-compose file

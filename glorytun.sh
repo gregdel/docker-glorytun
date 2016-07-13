@@ -36,12 +36,12 @@ initialized() {
 }
 
 started() {
-    iptables -t nat -A POSTROUTING -s ${GLORYTUN_IP_PEER} -j MASQUERADE
+    iptables -t nat -A POSTROUTING -o eth0 -s ${GLORYTUN_IP_PEER} -j MASQUERADE
     echo "mud started"
 }
 
 stopped() {
-    iptables -t nat -D POSTROUTING -s ${GLORYTUN_IP_PEER} -j MASQUERADE
+    iptables -t nat -D POSTROUTING -o eth0 -s ${GLORYTUN_IP_PEER} -j MASQUERADE
     echo "mud stopped"
 }
 
