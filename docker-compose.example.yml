@@ -1,7 +1,8 @@
 version: '2'
 services:
   mud:
-    build: .
+    image: gregdel/glorytun:0.89
+    hostname: mud
     container_name: mud
     cap_add:
     - NET_ADMIN

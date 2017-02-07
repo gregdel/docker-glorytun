@@ -17,46 +17,14 @@ echo ${GLORYTUN_KEY} > ${keyfile}
 : ${GLORYTUN_IP_PEER:=10.0.0.2}
 : ${GLORYTUN_PORT:=5000}
 
+echo "Configuring ${GLORYTUN_DEV}"
+ip tuntap add ${GLORYTUN_DEV} mode tun
+ip addr add ${GLORYTUN_IP_LOCAL} peer ${GLORYTUN_IP_PEER} dev ${GLORYTUN_DEV}
+ip link set ${GLORYTUN_DEV} mtu ${GLORYTUN_MTU}
+ip link set ${GLORYTUN_DEV} txqueuelen ${GLORYTUN_TXQLEN}
+ip link set ${GLORYTUN_DEV} up
+echo "Configuration done"
 
-statefile=/run/glorytun.fifo
-rm -f "${statefile}"
-mkfifo "${statefile}"
+iptables -w -t nat -A POSTROUTING -o eth0 -s ${GLORYTUN_IP_PEER} -j MASQUERADE
 
-trap "pkill -TERM -P $$" TERM
-/usr/sbin/glorytun dev ${GLORYTUN_DEV} statefile ${statefile} bind-port ${GLORYTUN_PORT} mtu ${GLORYTUN_MTU} keyfile ${keyfile} &
-GTPID=$!
-
-initialized() {
-    echo "Configuring ${GLORYTUN_DEV}"
-    ip addr add ${GLORYTUN_IP_LOCAL} peer ${GLORYTUN_IP_PEER} dev ${GLORYTUN_DEV}
-    ip link set ${GLORYTUN_DEV} mtu ${GLORYTUN_MTU}
-    ip link set ${GLORYTUN_DEV} txqueuelen ${GLORYTUN_TXQLEN}
-    ip link set ${GLORYTUN_DEV} up
-    echo "Configuration done"
-}
-
-started() {
-    iptables -t nat -A POSTROUTING -o eth0 -s ${GLORYTUN_IP_PEER} -j MASQUERADE
-    echo "mud started"
-}
-
-stopped() {
-    iptables -t nat -D POSTROUTING -o eth0 -s ${GLORYTUN_IP_PEER} -j MASQUERADE
-    echo "mud stopped"
-}
-
-while kill -0 ${GTPID}; do
-    read STATE DEV || break
-    echo $1 ${STATE} ${DEV}
-    case ${STATE} in
-    INITIALIZED)
-        initialized
-        ;;
-    STARTED)
-        started
-        ;;
-    STOPPED)
-        stopped
-        ;;
-    esac
-done < ${statefile}
+/usr/sbin/glorytun dev ${GLORYTUN_DEV} bind-port ${GLORYTUN_PORT} mtu ${GLORYTUN_MTU} keyfile ${keyfile} v4only
